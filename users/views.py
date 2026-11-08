@@ -26,55 +26,7 @@ from .models import *
 from .serializers import *
 from .throttle import StaffRateThrottle
 from django.http import Http404
-
-# def profile_list_view(request):
-#     profiles = Profile.objects.select_related('user')
-#     return render(request,'profile_list.html',{'profiles' : profiles})
-
-
-# def profile_detail_view(request,pk):
-#     profile = get_object_or_404(Profile,pk=pk)
-#     return render(request,'profile-detail.html',{'profile':profile})
-
-
-# class ProfileListView(ListView):
-#     model = Profile
-#     queryset = Profile.objects.select_related('user')
-#     template_name = 'profile_list.html'
-#     context_object_name = 'profiles'
-
-# class ProfileDetailView(DetailView):
-#     model = Profile
-#     template_name = 'profile-detail.html'
-#     context_object_name = 'profile'
-
-
-# def subscribe(request):
-#     if request.method == 'POST':
-#         form = UsersForm(request.POST)
-#         if form.is_valid():
-#             email = form.cleaned_data['email']
-#             print('ثبت شد',email)
-#     else:
-#         form = UsersForm()
-
-#     return render(request,'subscribe.html',{'form':form})
-
-
-@api_view(["GET"])
-def profile_list(request):
-    profiles = Profile.objects.all()
-    serializer_class = ProfileSerializer(profiles, many=True)
-    return Response(serializer_class.data)
-
-
-# class ProfileListView(APIView):
-#     throttle_classes = []
-
-#     def get(self,request):
-#         profiles = Profile.objects.all()
-#         serializer_class = ProfileSerializer(profiles,many=True)
-#         return Response(serializer_class.data)
+from .permissions import *
 
 
 class ProfileFilter(filters.FilterSet):
@@ -94,11 +46,12 @@ class ProfilePagination(PageNumberPagination):
     max_page_size = 10
 
 
-# @method_decorator(cache_page(60*5),name='dispatch')
+@method_decorator(cache_page(60*5),name='dispatch')
 class ProfileListView(ReadOnlyModelViewSet):
     throttle_classes : list = []
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
+    permission_classes = [IsInstructorOrStaff]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = ProfileFilter
     search_fields = ["full_name", "github_link"]
@@ -118,35 +71,8 @@ class ProfileRetrieveUpdateDestroyview(RetrieveUpdateDestroyAPIView):
     serializer_class = ProfileSerializer
 
 
-class ProfileView(ModelViewSet):
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializer
 
 
-@receiver(post_save, sender=Profile)
-def clear_profile_cache(sender, instance, **kwargs):
-    cache.delete_pattern("views.decorators.cache*")
-
-
-
-
-class ProfileTestViewSet(ReadOnlyModelViewSet):
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializer
-
-
-    def retrieve(self, request, *args, **kwargs):
-        pk = kwargs.get('pk')
-        if pk == 900:
-            raise Http404("پروفایل پیدا نشد ")
-        return super().retrieve(request,*args,**kwargs)
-
-
-
-def profiles_list(request):
-    profiles = Profile.objects.all()
-    for profile in profiles:
-        print(profile.user.first_name)
 
 
 class ProfileNplusoneView(APIView):

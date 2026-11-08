@@ -8,18 +8,11 @@ from rest_framework.routers import DefaultRouter
 from .views import *
 
 router = DefaultRouter()
-router.register(r"profiles", ProfileView, basename="profiles-viewset")
 
-# urlpatterns = [
-#     path('profilelist/',ProfileListView.as_view(),name='profiles'),
-#     path('detail/<int:pk>/',ProfileDetailView.as_view(),name='profile-detail'),
-#     path('subscribe/',subscribe,name='subscribe')
-# ]
 
 # urlpatterns +=static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)
 
 urlpatterns = [
-    path("fbv/Profiles/", profile_list, name="fbv-profiles"),
     path(
         "cbv/Profiles/",
         ProfileListView.as_view({"get": "list"}),
