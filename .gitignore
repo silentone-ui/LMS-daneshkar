@@ -1,2 +1,4 @@
 daneshkar/
 .env
+__pycache__/
+*.pyc
