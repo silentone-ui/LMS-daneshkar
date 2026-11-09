@@ -4,6 +4,9 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 from django.db import models
+import  random
+from django.utils import timezone
+
 
 
 class CustomUserManager(BaseUserManager):
@@ -55,3 +58,17 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.phone
+
+
+class PasswordResetOTP(models.Model):
+    phone = models.CharField(max_length=11)
+    otp_code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+
+    def generate_otp(self):
+        self.otp_code = str(random.randint(100000,999999))
+        self.created_at = timezone.now()
+        self.is_used = False
+        self.save()
+        return self.otp_code

@@ -42,3 +42,12 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         }
 
         return data
+
+
+class RequestPasswordResetSerializer(serializers.Serializer):
+    phone = serializers.CharField(max_length=11)
+
+class VerifyOTPAndResetPasswordSerializer(serializers.Serializer):
+    phone = serializers.CharField(max_length=11)
+    otp_code = serializers.CharField(max_length=6)
+    new_password = serializers.CharField(min_length=8)
