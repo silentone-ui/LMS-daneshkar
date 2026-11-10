@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "course",
     'lessons',
     'notification',
+    'ticketing',
     "django_extensions",
     "auditlog",
     "django_celery_beat",
