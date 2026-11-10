@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "drf_spectacular_sidecar",
     "accounts",
     "users",
+    "course",
     "django_extensions",
     "auditlog",
     "django_celery_beat",
