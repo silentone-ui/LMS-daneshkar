@@ -12,6 +12,8 @@ from rest_framework.response import Response
 from .models import *
 from .serializers import *
 from .permissions import *
+from notification.tasks import *
+
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -71,7 +73,11 @@ class CreateInvoiceView(generics.CreateAPIView):
             serializer.instance = existing_invoice
         else:
             serializer.save(user=self.request.user,course=course,amount=course.price)
-
+            send_notification_task.delay(
+                user_id = self.request.user.id,
+                title = 'صدور فاکتور جدید',
+                message = f' برای دوره{course.title} فاکتور جدید ایجاد شد',
+            )
 
 class PayInvoiceView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -84,4 +90,14 @@ class PayInvoiceView(APIView):
         invoice.mark_maid(fake_reference_code)
 
         Enrollment.objects.get_or_create(user=request.user,course=invoice.course)
+
+        send_notification_task.delay(
+                user_id = self.request.user.id,
+                title = 'پرداخت موفقیت آمیز بود ',
+                message = f'پرداخت برای خرید دوره {invoice.id} موفقیت آمیز بود'
+            )
+
+
+
+
         return Response({'detaild':'پرداخت با موفقیت انجام شد','payment_reference':fake_reference_code})
